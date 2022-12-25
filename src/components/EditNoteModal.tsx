@@ -16,7 +16,7 @@ export default function EditNoteModal({ id, functions }: any) {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Editando Nota!</ModalHeader>
+          <ModalHeader>Editing note</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <NoteForm id={id} onClose={onClose} />

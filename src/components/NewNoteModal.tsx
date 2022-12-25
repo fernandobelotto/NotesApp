@@ -8,8 +8,10 @@ import {
   ModalOverlay, Textarea, useDisclosure, useToast, VStack
 } from "@chakra-ui/react";
 import { useRef } from "react";
-import { useAppDispatch, useAppSelector } from "../store/store";
-import { createTodo, getTodos } from "../store/todo.thunks";
+import { useAppDispatch } from "../store/store";
+
+import { useCreateTodoMutation} from "../store/todo.api";
+import { addTodo } from "../store/todo.slice";
 
 export default function NewNoteModal() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -17,7 +19,7 @@ export default function NewNoteModal() {
   const toast = useToast();
 
   const dispatch = useAppDispatch();
-  const { loading } = useAppSelector((state) => state.todo);
+  const [createApiTodo, { isLoading }] = useCreateTodoMutation();
   const textareaRef = useRef<any>(null);
   const inputRef = useRef<any>(null);
 
@@ -26,41 +28,31 @@ export default function NewNoteModal() {
       title: inputRef?.current?.value,
       content: textareaRef?.current?.value,
     };
-    dispatch(createTodo(newTodo))
-      .unwrap()
-      .then(() => {
-        dispatch(getTodos());
-        onClose();
-      })
-      .catch(() => {
-        toast({
-          status: "error",
-          title: "Error creating note!",
-        });
-      });
+    dispatch(addTodo(newTodo))
+    createApiTodo(newTodo)
   }
 
   return (
     <>
-      <Button onClick={onOpen}>Nova Nota</Button>
+      <Button onClick={onOpen}>New note</Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Nova Nota</ModalHeader>
+          <ModalHeader>New note</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <VStack spacing={2} alignItems="flex-start">
-              <FormLabel>Título da nota</FormLabel>
+              <FormLabel>Title</FormLabel>
               <Input ref={inputRef} />
-              <FormLabel>Conteúdo da nota</FormLabel>
+              <FormLabel>Content</FormLabel>
               <Textarea ref={textareaRef}></Textarea>
             </VStack>
           </ModalBody>
 
           <ModalFooter>
             <Button
-              isLoading={loading === "pending"}
+              isLoading={isLoading}
               variant="ghost"
               colorScheme="green"
               mr={3}
@@ -69,11 +61,11 @@ export default function NewNoteModal() {
               Close
             </Button>
             <Button
-              isLoading={loading === "pending"}
+              isLoading={isLoading}
               onClick={handleNewNote}
               colorScheme="green"
             >
-              Criar Nota
+              Create
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -17,7 +17,7 @@ export default function NotesList() {
     return (
       <Box>
         <Box>
-          <Text>Você não possui notas!</Text>
+          <Text>There is no notes!</Text>
         </Box>
       </Box>
     );

@@ -1,27 +1,34 @@
-import getInstance from "./axios-instance";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-export class TodoApi {
-  static async create(body: any) {
-    const axiosInstance = getInstance();
-    const { data } = await axiosInstance.post("/todos", body);
-    return data;
-  }
+export const todosApi = createApi({
+  reducerPath: 'todosApi',
+  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3000' }),
+  endpoints: (builder) => ({
+    getTodos: builder.query({
+      query: () => '/todos',
+    }),
+    createTodo: builder.mutation({
+      query: (body) => ({
+        url: '/todos',
+        method: 'POST',
+        body,
+      }),
+    }),
+    deleteTodo: builder.mutation({
+      query: (id) => ({
+        url: `/todos/${id}`,
+        method: 'DELETE',
+      }),
+    }),
+    updateTodo: builder.mutation({
+      query: (body) => ({
+        url: `/todos/${body.id}`,
+        method: 'PUT',
+        body,
+      }),
+    }),
+  }),
+})
 
-  static async fetch() {
-    const axiosInstance = getInstance();
-    const { data } = await axiosInstance.get("/todos");
-    return data;
-  }
+export const { useGetTodosQuery, useCreateTodoMutation, useDeleteTodoMutation, useUpdateTodoMutation } = todosApi;
 
-  static async deleteById(id: string) {
-    const axiosInstance = getInstance();
-    const { data } = await axiosInstance.delete(`todos/${id}`);
-    return data;
-  }
-
-  static async updateById(id: string, body: any) {
-    const axiosInstance = getInstance();
-    const { data } = await axiosInstance.put(`/todos/${id}`, body);
-    return data;
-  }
-}

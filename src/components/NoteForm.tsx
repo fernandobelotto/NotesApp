@@ -6,15 +6,18 @@ import {
   Input,
   Textarea,
   useToast,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/store";
-import { deleteTodo, getTodos, updateTodo } from "../store/todo.thunks";
+import { useDeleteTodoMutation, useUpdateTodoMutation } from "../store/todo.api";
+import { removeTodo } from "../store/todo.slice";
 
 export default function NoteForm({ id, onClose }: any) {
   const dispatch = useAppDispatch();
-  const { entities, loading } = useAppSelector((state) => state.todo);
+  const { entities } = useAppSelector((state) => state.todo);
+  const [deleteTodo, { isLoading: isLoadingDelete }] = useDeleteTodoMutation();
+  const [updateTodo, { isLoading: isLoadingUpdate }] = useUpdateTodoMutation();
   const toast = useToast();
   const todo = entities?.find((e) => e.id === id);
   const [content, setContent] = useState<any>(todo?.content);
@@ -25,41 +28,18 @@ export default function NoteForm({ id, onClose }: any) {
       title,
       content,
     };
-    dispatch(updateTodo({ id, todo: newTodo }))
-      .unwrap()
-      .then(() => {
-        dispatch(getTodos());
-        onClose();
-      })
-      .catch(() => {
-        toast({
-          status: "error",
-          title: "Error updating note!",
-        });
-      });
   }
 
   function handleDeleteNote() {
-    dispatch(deleteTodo(id))
-      .unwrap()
-      .then(() => {
-        dispatch(getTodos());
-        onClose();
-      })
-      .catch(() => {
-        toast({
-          status: "error",
-          title: "Error deleting note!",
-        });
-      });
+    dispatch(removeTodo({ id }))
   }
 
   return (
     <>
       <VStack spacing={2} alignItems="flex-start">
-        <FormLabel>Título da nota</FormLabel>
+        <FormLabel>Title</FormLabel>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-        <FormLabel>Conteúdo da nota</FormLabel>
+        <FormLabel>Content</FormLabel>
         <Textarea
           onChange={(e) => setContent(e.target.value)}
           value={content}
@@ -67,7 +47,7 @@ export default function NoteForm({ id, onClose }: any) {
       </VStack>
       <Flex mt={5} mb={3} dir="row" justify="space-between" alignItems="center">
         <Button
-          isLoading={loading === "pending"}
+          isLoading={isLoadingDelete}
           colorScheme="red"
           size="sm"
           onClick={handleDeleteNote}
@@ -76,7 +56,7 @@ export default function NoteForm({ id, onClose }: any) {
         </Button>
         <HStack spacing={3}>
           <Button
-            isLoading={loading === "pending"}
+            isLoading={isLoadingDelete}
             variant="ghost"
             colorScheme="green"
             mr={3}
@@ -85,11 +65,11 @@ export default function NoteForm({ id, onClose }: any) {
             Close
           </Button>
           <Button
-            isLoading={loading === "pending"}
+            isLoading={isLoadingDelete}
             onClick={handleUpdateNote}
             colorScheme="green"
           >
-            Criar Nota
+            Create
           </Button>
         </HStack>
       </Flex>

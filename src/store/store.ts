@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { TodoReducer } from "./todo.slice";
+import { todosApi } from "./todo.api";
 
 const reducer = {
-  todo: TodoReducer
+  todo: TodoReducer,
+  [todosApi.reducerPath]: todosApi.reducer,
 };
 
 export const store = configureStore({ reducer });
